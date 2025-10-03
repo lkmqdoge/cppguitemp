@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Adding Raylib
 include(FetchContent)
 
 # define a function for adding git dependencies
@@ -29,6 +28,7 @@ find_package(SDL3 QUIET)
 if (NOT SDL3_FOUND)
     message(STATUS "Getting SDL3 from Github")
     include_dependency(SDL3 https://github.com/libsdl-org/SDL.git release-3.2.18)
+    add_subdirectory(${SDL3_SOURCE_DIR} ${SDL3_BINARY_DIR} EXCLUDE_FROM_ALL)
 else()
     message(STATUS "Using local SDL3")
 endif()
@@ -42,22 +42,52 @@ else()
     message(STATUS "Using local SDL_Image")
 endif()
 
-add_executable(${PROJECT_NAME}
-    WIN32
-    src/main.cpp
+find_package(OpenGL REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(EGL REQUIRED egl)
+pkg_check_modules(GL REQUIRED gl)
+
+add_library(imgui
+    imgui/imgui.cpp
+    imgui/imgui_demo.cpp
+    imgui/imgui_draw.cpp
+    imgui/imgui_tables.cpp
+    imgui/imgui_widgets.cpp
+    imgui/backends/imgui_impl_sdl3.cpp
+    imgui/backends/imgui_impl_opengl3.cpp
+    imgui/backends/imgui_impl_sdlgpu3.cpp
 )
 
+target_include_directories(imgui PUBLIC
+    imgui
+    imgui/backends
+    ${SDL3_INCLUDE_DIRS}
+)
 
-target_include_directories(${PROJECT_NAME}  PUBLIC ${SDL3_INCLUDE_DIRS})
+add_executable(${PROJECT_NAME}
+    WIN32
+    src/sdlgputest.cpp
+)
+
+target_include_directories(${PROJECT_NAME}  
+    PUBLIC  ${SDL3_INCLUDE_DIRS}
+    PRIVATE ${EGL_INCLUDE_DIRS}
+    PRIVATE ${GL_INCLUDE_DIRS}
+)
 target_compile_definitions(${PROJECT_NAME}  PRIVATE SDL_MAIN_USE_CALLBACKS)
 
 # link all libraries to the project
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}
     PRIVATE SDL3::SDL3
-    PRIVATE SDL3_image::SDL3_image SDL3::SDL3
+    PRIVATE SDL3_image::SDL3_image
+    PRIVATE imgui
+    PRIVATE dl
+    PRIVATE pthread
+    PRIVATE ${EGL_LIBRARIES}
+    PRIVATE ${GL_LIBRARIES}
 )
 
-# i dont even fucking know what this does
+# adding dll in exe folder on windows
 if (WIN32)
     add_custom_command(
             TARGET ${PROJECT_NAME} POST_BUILD

@@ -21,17 +21,13 @@
             packages = with pkgs; [
               clang-tools
               cmake
-              codespell
-              conan
-              cppcheck
-              doxygen
-              gtest
-              lcov
-              vcpkg
-              vcpkg-tool
+              sdl3-image
+
+              sdl3
+              imgui
+              pkg-config
 
               alsa-lib
-              cmake
               hidapi
               ibus
               jack2
@@ -45,7 +41,6 @@
               xorg.libXfixes
               xorg.libXinerama # libxinerama
               libxkbcommon
-              sdl3
               xorg.libXrandr # libxrandr
               xorg.libXrender # libxrender
               # libxss
