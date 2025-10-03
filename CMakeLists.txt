@@ -33,7 +33,7 @@ else()
     message(STATUS "Using local SDL3")
 endif()
 
-#add SDL_Image
+# add SDL_Image
 find_package(SDL3_Image QUIET)
 if (NOT SDL3_Image_FOUND)
     message(STATUS "Getting SDL_Image from Github")
@@ -41,7 +41,6 @@ if (NOT SDL3_Image_FOUND)
 else()
     message(STATUS "Using local SDL_Image")
 endif()
-
 
 add_executable(${PROJECT_NAME}
     WIN32

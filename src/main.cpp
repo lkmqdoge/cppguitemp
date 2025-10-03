@@ -25,13 +25,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO) == false)
     {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Couldn't initialize SDL!", SDL_GetError(), NULL);
+        printf("Couldn't initialize SDL!, %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
     if (SDL_CreateWindowAndRenderer("hello SDL3 with cmake", 800, 600, 0, &window, &renderer) == false)
     {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Couldn't create window/renderer!", SDL_GetError(), NULL);
+        printf("Couldn't create window/renderer! %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
