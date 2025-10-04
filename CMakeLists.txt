@@ -43,6 +43,8 @@ find_package(OpenGL REQUIRED)
 # pkg_check_modules(EGL REQUIRED egl)
 # pkg_check_modules(GL REQUIRED gl)
 
+add_subdirectory(glad)
+
 # ------------------------------ ImgGui ---------------------------
 add_library(imgui
     imgui/imgui.cpp
@@ -85,6 +87,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE SDL3_image::SDL3_image
     PRIVATE imgui
     PRIVATE OpenGL::GL
+    PRIVATE glad
     # PRIVATE ${EGL_LIBRARIES}
     # PRIVATE ${GL_LIBRARIES}
 )
@@ -116,6 +119,11 @@ if (WIN32)
     add_custom_command(
             TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_image::SDL3_image>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+            VERBATIM
+    )
+    add_custom_command(
+            TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:glad>" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
             VERBATIM
     )
 endif()
