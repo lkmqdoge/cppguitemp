@@ -1,34 +1,11 @@
-#define SDL_MAIN_USE_CALLBACKS 1
-
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include "glad/glad.h"
-// #include <SDL3/SDL_opengl.h>
-
 
 #include <stdio.h>
-
-#define TARGET_FPS 60
-#define SHOW_FPS
-
-#define PROJECTILE_COUNT 30000
-#define PROJECTILE_SPEED 15.0f
-
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-#define PROJECTILE_SIZE_X 14
-#define PROJECTILE_SIZE_Y 14
-
-static const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -36,8 +13,6 @@ static SDL_Texture *proj = NULL;
 
 static ImGuiIO* io;
 static SDL_GLContext gl_context;
-static unsigned int vertexShader;
-
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -126,12 +101,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(); 
 
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
 
     return SDL_APP_CONTINUE;
 }
+
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
@@ -192,17 +165,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     /*
         Main Drawing 
     */
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
+    
+    
     // Rendering
     ImGui::Render();
     glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
@@ -210,6 +174,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     glClear(GL_COLOR_BUFFER_BIT);
     
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    
     SDL_GL_SwapWindow(window);
 
     return SDL_APP_CONTINUE;

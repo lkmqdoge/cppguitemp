@@ -44,6 +44,7 @@ find_package(OpenGL REQUIRED)
 # pkg_check_modules(GL REQUIRED gl)
 
 add_subdirectory(glad)
+add_subdirectory(lib)
 
 # ------------------------------ ImgGui ---------------------------
 add_library(imgui
@@ -88,6 +89,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE imgui
     PRIVATE OpenGL::GL
     PRIVATE glad
+    PRIVATE qrlx
     # PRIVATE ${EGL_LIBRARIES}
     # PRIVATE ${GL_LIBRARIES}
 )
