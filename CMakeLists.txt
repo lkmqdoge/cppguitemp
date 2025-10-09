@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(cppguitemp VERSION 0.1.0 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -44,7 +44,7 @@ find_package(OpenGL REQUIRED)
 # pkg_check_modules(GL REQUIRED gl)
 
 add_subdirectory(glad)
-add_subdirectory(lib)
+# add_subdirectory(lib)
 
 # ------------------------------ ImgGui ---------------------------
 add_library(imgui
@@ -69,7 +69,7 @@ target_link_libraries(imgui
 
 add_executable(${PROJECT_NAME}
     WIN32
-    src/main.cpp
+    src/cppPlot.cpp
 )
 
 
@@ -89,7 +89,7 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE imgui
     PRIVATE OpenGL::GL
     PRIVATE glad
-    PRIVATE qrlx
+    # PRIVATE qrlx
     # PRIVATE ${EGL_LIBRARIES}
     # PRIVATE ${GL_LIBRARIES}
 )

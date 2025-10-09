@@ -1,4 +1,6 @@
 #include "graphics.hpp"
+#include "SDL3/SDL_video.h"
+#include "glad/glad.h"
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <stdlib.h>
@@ -57,9 +59,48 @@ void Graphics::Init()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     
+    float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    SDL_WindowFlags window_flags =  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
+    if (window == nullptr)
+    {
+        printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+        return;
+    }
+
+    *context = SDL_GL_CreateContext(window);
+    if (context == nullptr)
+    {
+        printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
+        return;
+    }
+
+    SDL_GL_MakeCurrent(window, *context);
+
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+    {
+        printf("Failed to initialize GLAD\n");
+        return;
+    }
+
+
+    SDL_GL_SetSwapInterval(1); // Enable vsync
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(window);
 }
 
 void Graphics::Draw()
 {
+    glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    
+    SDL_GL_SwapWindow(window);
+}
 
+SDL_GLContext& Graphics::GetContext()
+{
+    return context;
 }

@@ -5,6 +5,8 @@
 #include "imgui_impl_opengl3.h"
 #include "glad/glad.h"
 
+#include <cmath>
+#include <iostream>
 #include <stdio.h>
 
 static SDL_Window *window = NULL;
@@ -12,6 +14,39 @@ static SDL_Texture *proj = NULL;
 
 static ImGuiIO* io;
 static SDL_GLContext gl_context;
+
+typedef struct Point 
+{
+    GLfloat x;
+    GLfloat y;
+} Point;
+
+Point graph[2000];
+
+unsigned int VBO;
+
+// GLint uniform_offset_x;
+// GLint uniform_scale_x;
+// float offset_x = 0.0;
+// float scale_x = 1.0;
+
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "uniform vec4 ourColor;\n"
+    "void main()\n"
+    "{\n"
+    "    FragColor = ourColor;\n"
+    "}\0"; 
+
+unsigned int shaderProgram, fragmentShader, vertexShader;
+
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -101,7 +136,76 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     ImGui_ImplOpenGL3_Init(); 
 
 
+    /*
+        --------------------------------------- Shaders ---------------------------------------
+    */
+    int  success;
+    char infoLog[512];
+
+    shaderProgram = glCreateProgram();
+
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if(!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
+    }
+    /*
+        ---------------------------------------- Graph -----------------------------------------
+    */
+    
+    for(int i = 0; i < 2000; i++) {
+        float x = (i - 1000.0) / 100.0;
+        graph[i].x = x;
+        graph[i].y = sin(x * 10.0) / (1.0 + x * x);
+    }
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(graph), graph, GL_STATIC_DRAW);
+
     return SDL_APP_CONTINUE;
+}
+
+
+/*
+    SDL will clean up the window/renderer for us
+*/
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
+    
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);  
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DestroyContext(gl_context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 
@@ -123,7 +227,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     return SDL_APP_CONTINUE;
 }
-
 
 /*
     MAIN LOOP THING
@@ -164,31 +267,36 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     /*
         Main Drawing 
     */
-    
-    
-    // Rendering
     ImGui::Render();
     glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
     
+    float timeValue = ImGui::GetTime();
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+
+    glUseProgram(shaderProgram);
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        0,                   // attribute
+        2,                   // number of elements per vertex, here (x,y)
+        GL_FLOAT,            // the type of each element
+        GL_FALSE,            // take our values as-is
+        0,                   // no space between values
+        0                    // use the vertex buffer object
+    );
+
+    glDrawArrays(GL_LINE_STRIP, 0, 2000);
+
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
     SDL_GL_SwapWindow(window);
 
     return SDL_APP_CONTINUE;
-}
-
-/*
-    SDL will clean up the window/renderer for us
-*/
-void SDL_AppQuit(void *appstate, SDL_AppResult result)
-{
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-
-    SDL_GL_DestroyContext(gl_context);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }
