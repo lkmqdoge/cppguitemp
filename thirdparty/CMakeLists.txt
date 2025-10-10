@@ -18,13 +18,13 @@ target_include_directories(imgui PUBLIC
     ${SDL3_INCLUDE_DIRS}
 )
 
-target_link_libraries(imgui
-    PRIVATE SDL3::SDL3
+target_link_libraries(imgui PRIVATE
+    SDL3::SDL3
 )
 
 add_library(extern INTERFACE)
 
 target_link_libraries(extern INTERFACE
-  SDL3::SDL3
-  imgui
+    SDL3::SDL3
+    imgui
 )
