@@ -1,5 +1,7 @@
 add_subdirectory(SDL)
 
+add_subdirectory(glad)
+
 # ------------------------------ ImgGui ---------------------------
 add_library(imgui
     imgui/imgui.cpp
@@ -27,4 +29,5 @@ add_library(extern INTERFACE)
 target_link_libraries(extern INTERFACE
     SDL3::SDL3
     imgui
+    glad
 )

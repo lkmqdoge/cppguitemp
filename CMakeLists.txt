@@ -10,7 +10,6 @@ find_package(PkgConfig REQUIRED)
 
 # pkg_check_modules(EGL REQUIRED egl)
 
-add_subdirectory(glad)
 add_subdirectory(thirdparty)
 
 
@@ -29,7 +28,6 @@ target_include_directories(${PROJECT_NAME}
 # link all libraries to the project
 target_link_libraries(${PROJECT_NAME}
     PRIVATE OpenGL::GL
-    PRIVATE glad
     PRIVATE extern
     # PRIVATE ${EGL_LIBRARIES}
 )
