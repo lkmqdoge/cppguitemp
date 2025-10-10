@@ -5,6 +5,7 @@
 #include "imgui_impl_opengl3.h"
 #include "glad/glad.h"
 
+#include <SDL3/SDL_video.h>
 #include <cmath>
 #include <iostream>
 #include <stdio.h>
@@ -90,6 +91,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+    puts("Here!");
+
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     SDL_WindowFlags window_flags =  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
@@ -98,8 +101,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
+    
     gl_context = SDL_GL_CreateContext(window);
+
+
     if (gl_context == nullptr)
     {
         printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
