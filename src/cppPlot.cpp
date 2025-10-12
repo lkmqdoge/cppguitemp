@@ -1,11 +1,11 @@
+#include "glad/glad.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
-#include "glad/glad.h"
 
-#include <SDL3/SDL_video.h>
 #include <cmath>
 #include <iostream>
 #include <stdio.h>
@@ -18,18 +18,13 @@ static SDL_GLContext gl_context;
 
 typedef struct Point 
 {
-    GLfloat x;
-    GLfloat y;
+    float x;
+    float y;
 } Point;
 
 Point graph[2000];
 
 unsigned int VBO;
-
-// GLint uniform_offset_x;
-// GLint uniform_scale_x;
-// float offset_x = 0.0;
-// float scale_x = 1.0;
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -51,52 +46,24 @@ unsigned int shaderProgram, fragmentShader, vertexShader;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) == false)
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
         printf("Couldn't initialize SDL!, %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-  // Decide GL+GLSL versions
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-    // GL ES 2.0 + GLSL 100 (WebGL 1.0)
-    const char* glsl_version = "#version 100";
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
-    // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
-    const char* glsl_version = "#version 300 es";
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#elif defined(__APPLE__)
-    // GL 3.2 Core + GLSL 150
-    const char* glsl_version = "#version 150";
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#else
-    // GL 3.0 + GLSL 130
-    const char* glsl_version = "#version 130";
+
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#endif
-    // Create window with graphics context
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-    puts("Here!");
-
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    SDL_WindowFlags window_flags =  SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
-    if (window == nullptr)
+    unsigned int window_flags =  SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
+    window = SDL_CreateWindow("Plot", (int)1280*main_scale, (int)800*main_scale, window_flags);
+    if (!window)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -104,15 +71,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     
     gl_context = SDL_GL_CreateContext(window);
 
-
-    if (gl_context == nullptr)
+    if (!gl_context)
     {
         printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
-    SDL_GL_MakeCurrent(window, gl_context);
 
+    SDL_GL_MakeCurrent(window, gl_context);
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     {
         printf("Failed to initialize GLAD\n");
@@ -130,25 +96,25 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     io = &ImGui::GetIO();
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    
+
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+    style.ScaleAllSizes(main_scale);
     style.FontScaleDpi = main_scale;
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(); 
-
+    //
 
     /*
         --------------------------------------- Shaders ---------------------------------------
     */
     int  success;
     char infoLog[512];
-
+    //
     shaderProgram = glCreateProgram();
-
+    //
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -158,7 +124,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
@@ -168,7 +133,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
-
+    //
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
@@ -177,16 +142,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
     }
-    /*
-        ---------------------------------------- Graph -----------------------------------------
-    */
-    
+    // /*
+    //     ---------------------------------------- Graph -----------------------------------------
+    // */
+    // 
     for(int i = 0; i < 2000; i++) {
         float x = (i - 1000.0) / 100.0;
         graph[i].x = x;
         graph[i].y = sin(x * 10.0) / (1.0 + x * x);
     }
-
+    //
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -204,6 +169,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);  
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
@@ -257,7 +223,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     /*
         Simple HelloWorld embeded window
     */
-
     ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoResize);                         
     ImGui::Text("This is some useful text.");              
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);          
@@ -274,16 +239,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     */
     ImGui::Render();
     glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
     
     float timeValue = ImGui::GetTime();
-    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+    float greenValue = 1.0f;
     int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 
     glUseProgram(shaderProgram);
     glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-
+    //
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
@@ -294,7 +259,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         0,                   // no space between values
         0                    // use the vertex buffer object
     );
-
     glDrawArrays(GL_LINE_STRIP, 0, 2000);
 
     glDisableVertexAttribArray(0);
