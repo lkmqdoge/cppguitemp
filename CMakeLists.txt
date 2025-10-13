@@ -3,11 +3,11 @@ project(cppguitemp)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
 add_subdirectory(thirdparty)
-
 find_package(OpenGL REQUIRED)
 
+
+# ------------------------- Main app 
 add_executable(${PROJECT_NAME}
     WIN32
     src/cppPlot.cpp

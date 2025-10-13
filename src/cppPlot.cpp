@@ -18,8 +18,8 @@ static SDL_GLContext gl_context;
 
 typedef struct Point 
 {
-    float x;
-    float y;
+    GLfloat x;
+    GLfloat y;
 } Point;
 
 Point graph[2000];
@@ -52,17 +52,50 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
+      // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GL ES 2.0 + GLSL 100 (WebGL 1.0)
+    const char* glsl_version = "#version 100";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(IMGUI_IMPL_OPENGL_ES3)
+    // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
+    const char* glsl_version = "#version 300 es";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+    // GL 3.2 Core + GLSL 150
+    const char* glsl_version = "#version 150";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#else
+    // GL 3.0 + GLSL 130
+    const char* glsl_version = "#version 130";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
+    // Create window with graphics context
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    unsigned int window_flags =  SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
-    window = SDL_CreateWindow("Plot", (int)1280*main_scale, (int)800*main_scale, window_flags);
+    unsigned int window_flags =  SDL_WINDOW_OPENGL |
+                                 SDL_WINDOW_HIDDEN |
+                                 SDL_WINDOW_RESIZABLE |
+                                 SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    window = SDL_CreateWindow("Plot",
+                              (int)1280*main_scale,
+                              (int)800*main_scale,
+                              window_flags);
     if (!window)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -77,8 +110,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-
     SDL_GL_MakeCurrent(window, gl_context);
+
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
     {
         printf("Failed to initialize GLAD\n");
@@ -127,7 +160,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if(!success)
     {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
@@ -145,13 +178,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // /*
     //     ---------------------------------------- Graph -----------------------------------------
     // */
-    // 
-    for(int i = 0; i < 2000; i++) {
+    
+    for(int i = 0; i < 2000; i++)
+    {
         float x = (i - 1000.0) / 100.0;
         graph[i].x = x;
         graph[i].y = sin(x * 10.0) / (1.0 + x * x);
     }
-    //
+
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -182,7 +216,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    ImGui_ImplSDL3_ProcessEvent(event); // Forward your event to backend
+    ImGui_ImplSDL3_ProcessEvent(event);
     switch (event->type)
     {
     case SDL_EVENT_QUIT:
@@ -248,7 +282,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     glUseProgram(shaderProgram);
     glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-    //
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
