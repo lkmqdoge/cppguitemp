@@ -3,10 +3,10 @@ project(cppguitemp)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(SDL3   REQUIRED)
-find_package(OpenGL REQUIRED)
 
 add_subdirectory(thirdparty)
+
+find_package(OpenGL REQUIRED)
 
 add_executable(${PROJECT_NAME}
     WIN32
@@ -20,9 +20,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE SDL3::SDL3
             OpenGL::GL
             glad
-            dl
-            m
-            pthread
             imgui
 )
 
