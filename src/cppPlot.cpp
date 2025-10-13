@@ -7,6 +7,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <stdio.h>
 
@@ -18,11 +19,12 @@ static SDL_GLContext gl_context;
 
 typedef struct Point 
 {
-    GLfloat x;
-    GLfloat y;
+    float x;
+    float y;
 } Point;
 
 Point graph[2000];
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 unsigned int VBO;
 
@@ -119,7 +121,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
 
-    SDL_GL_SetSwapInterval(1); // Enable vsync
+    // SDL_GL_SetSwapInterval(1); // Enable vsync
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
 
@@ -127,6 +129,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io = &ImGui::GetIO();
+    io->IniFilename = NULL;
+    io->LogFilename = NULL;
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -234,7 +238,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 }
 
 /*
-    MAIN LOOP THING
+MAIN LOOP THING
 */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
@@ -246,7 +250,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 
 // ------------------- Start of ImGui frame ---------------------
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
@@ -257,7 +260,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     /*
         Simple HelloWorld embeded window
     */
-    ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoResize);                         
+    ImGui::SetNextWindowPos(ImVec2());
+    ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_NoResize |
+                                        ImGuiWindowFlags_NoMove    |
+                                        ImGuiWindowFlags_NoCollapse |
+                                        ImGuiWindowFlags_NoSavedSettings);
     ImGui::Text("This is some useful text.");              
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);          
     ImGui::ColorEdit3("clear color", (float*)&clear_color);

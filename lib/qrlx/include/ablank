@@ -1,0 +1,12 @@
+#ifndef QRLX_
+#define QRLX_
+
+namespace qrlx
+{
+class BLANK
+{
+
+};
+}
+
+#endif

@@ -8,14 +8,12 @@ add_library(qrlx
 )
 
 target_include_directories(qrlx 
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(qrlx
     PRIVATE SDL3::SDL3
-    PRIVATE SDL3_image::SDL3_image
-    PRIVATE imgui
-    PRIVATE OpenGL::GL
-    PRIVATE glad
+            imgui
+            OpenGL::GL
+            glad
 )
