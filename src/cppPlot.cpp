@@ -192,7 +192,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
+//
     glBufferData(GL_ARRAY_BUFFER, sizeof(graph), graph, GL_STATIC_DRAW);
 
     return SDL_APP_CONTINUE;

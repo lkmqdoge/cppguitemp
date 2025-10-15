@@ -34,13 +34,7 @@ void Engine::Run()
     */
     for (;isRunning;)
     {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_EVENT_QUIT)
-                isRunning = 0;
-        }
-        window->HandleEvents();
+        isRunning = window->HandleEvents();
         window->Clear();
         app->Render();
         window->SwapBuffers();

@@ -5,7 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(thirdparty)
 find_package(OpenGL REQUIRED)
-find_package(SDL3 QUIET)
+find_package(SDL3 REQUIRED)
 
 
 set(CPPLOT_NAME cpplot)

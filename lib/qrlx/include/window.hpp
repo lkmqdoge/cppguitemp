@@ -3,6 +3,7 @@
 
 #include "SDL3/SDL_video.h"
 #include "color.hpp"
+#include "imgui.h"
 #include <memory>
 #include <string>
 
@@ -27,10 +28,12 @@ public:
 
     static std::unique_ptr<Window> Create(const std::string& p_title);
     
+
+    bool HandleEvents();
+
     // Draw
     void Clear();
     void SwapBuffers();
-    void HandleEvents();
 
     // Properties
     Color& GetDefaultClearColor();
@@ -41,6 +44,7 @@ private:
     std::unique_ptr<SDL_Window, SdlWindowDestroyer> window;
     SDL_GLContext context {};
     std::string title;
+    ImGuiIO* io;
 };
 }
 

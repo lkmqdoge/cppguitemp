@@ -1,10 +1,17 @@
-#include "window.hpp"
+#include "glad/glad.h"
 
 #include "SDL3/SDL_error.h"
 #include "SDL3/SDL_init.h"
 #include "SDL3/SDL_video.h"
-#include "glad/glad.h"
+#include "SDL3/SDL_events.h"
+
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui.h"
+
+#include "window.hpp"
 #include "log.hpp"
+
 #include <memory>
 
 using namespace qrlx;
@@ -72,19 +79,53 @@ bool Window::Init(int p_xPos, int p_yPos, int p_width, int p_height)
     SDL_SetWindowPosition(window.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window.get());
 
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    io = &ImGui::GetIO();
+    io->IniFilename = NULL;
+    io->LogFilename = NULL;
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui::StyleColorsDark();
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL3_InitForOpenGL(window.get(), context);
+    ImGui_ImplOpenGL3_Init(); 
+
     return true;
 }
 
 void Window::Clean()
 {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
     SDL_GL_DestroyContext(context);
     // SDL_DestroyWindow(window); Handled by unique_ptr
 }
 
 
-void Window::HandleEvents()
+bool Window::HandleEvents()
 {
-    
+    SDL_Event event;
+    while(SDL_PollEvent(&event))
+    {
+        ImGui_ImplSDL3_ProcessEvent(&event);
+
+        switch (event.type)
+        {
+        case SDL_EVENT_QUIT:
+          return 0;
+        default:
+            break;
+        }
+    }
+
+    return 1;
 }
 
 /*
@@ -97,6 +138,7 @@ void Window::Clear()
                   defaultClearColor.b,
                   defaultClearColor.a );
     glClear(GL_COLOR_BUFFER_BIT);
+
 }
 
 
