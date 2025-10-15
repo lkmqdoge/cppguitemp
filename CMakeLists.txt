@@ -5,13 +5,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(thirdparty)
 find_package(OpenGL REQUIRED)
-find_package(SDL3 REQUIRED)
+
+find_package(SDL3 QUIET)
 
 
 set(CPPLOT_NAME cpplot)
 
 # ------------------------- qrlx
 add_subdirectory(lib)
+
 
 # ------------------------- cpplot 
 add_executable(${CPPLOT_NAME}
@@ -32,6 +34,7 @@ target_link_libraries(${CPPLOT_NAME}
 
 target_include_directories(${CPPLOT_NAME}  
     PRIVATE ${SDL3_INCLUDE_DIRS}
+            ./src/cpplot/
 )
 
 # adding dll in exe folder on windows

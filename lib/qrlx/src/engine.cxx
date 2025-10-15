@@ -1,6 +1,5 @@
 #include "engine.hpp"
 #include "SDL3/SDL_init.h"
-#include "imgui_impl_sdl3.h"
 #include "log.hpp"
 #include <utility>
 
