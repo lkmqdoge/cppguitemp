@@ -1,5 +1,6 @@
 #include "plotapp.hpp"
 #include "glad/glad.h"
+#include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include "log.hpp"
@@ -8,15 +9,33 @@
 #include <iostream>
 #include <string>
 
-unsigned int VBO, VAO;
+static unsigned int VBO,  VAO,  EBO,
+                    VBOt, VAOt;
 
-unsigned int shaderProgram, vertexShader, fragmentShader;
+static unsigned int shaderProgram, 
+                    shaderProgramT;
+
 
 static float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
 };
+
+// Triangle
+static float tvertices[] = {
+    -1.0f, 1.0f, 0.0f,
+    -0.5f, 1.0f, 0.0f,
+    -1.0f, 0.5f, 0.0f,
+};
+
+static unsigned int indices[] = {
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
+};
+
+static bool wireframeMode;
 
 static std::string _LoadShader(const std::string& filename)
 {
@@ -44,10 +63,10 @@ static unsigned int _CreateShader(const std::string& source, unsigned int type)
 
     int  success;
     char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
         return 0;
     }
@@ -56,20 +75,31 @@ static unsigned int _CreateShader(const std::string& source, unsigned int type)
 
 void PlotApp::Init()
 {
+    CLOG("Hi from plot app");
+
+    // Start Rectangle
+    glGenBuffers(1 ,&VBO); // rectangle vertex array object
+    glGenBuffers(1, &EBO);
     glGenVertexArrays(1, &VAO);
+
     glBindVertexArray(VAO);
 
-    glGenBuffers(1 ,&VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    unsigned int    vertexShader,
+                    fragmentShader,
+                    fragmentShaderT;
 
     auto vsource   = _LoadShader("resources/plot.vert");
     auto fsource   = _LoadShader("resources/plot.frag");
     vertexShader   = _CreateShader(vsource, GL_VERTEX_SHADER);
     fragmentShader = _CreateShader(fsource, GL_FRAGMENT_SHADER);
-    
+
     shaderProgram = glCreateProgram();
-    
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
@@ -81,16 +111,52 @@ void PlotApp::Init()
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cout << "ERROR::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
     }
+    
     glUseProgram(shaderProgram);
-
     int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 
-    glUseProgram(shaderProgram);
     glUniform4f(vertexColorLocation, 0.9f, 0.4f, 0.6f, 1.0f);
 
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glVertexAttribPointer(
+        0,
+        3, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        3*sizeof(float), 
+        (void*)0
+    );
     glEnableVertexAttribArray(0);
+    // END Rectangle
+
+    // START triangle
+    glGenVertexArrays(1, &VAOt); // triangle vertex array object
+    glGenBuffers(1, &VBOt);
+    
+    glBindVertexArray(VAOt);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOt);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tvertices), tvertices, GL_STATIC_DRAW);
+    
+    auto tfsrc = _LoadShader("resources/tris.frag");
+    fragmentShaderT = _CreateShader(tfsrc, GL_FRAGMENT_SHADER);
+    shaderProgramT = glCreateProgram();
+    glAttachShader(shaderProgramT, vertexShader);
+    glAttachShader(shaderProgramT, fragmentShaderT);
+    glLinkProgram(shaderProgramT);
+
+    glVertexAttribPointer(
+        0,
+        3, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        3*sizeof(float), 
+        (void*)0
+    );
+    glEnableVertexAttribArray(0);
+    // END triangle
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader); 
+    glDeleteShader(fragmentShaderT); 
 }
 
 void PlotApp::Start()
@@ -100,8 +166,7 @@ void PlotApp::Start()
 
 void PlotApp::Exit()
 {
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);  
+
 }
 
 void PlotApp::Upadte()
@@ -112,13 +177,16 @@ void PlotApp::HandleEvent()
 {
 }
 
-
-
 void PlotApp::Render()
 {
+    glPolygonMode(GL_FRONT_AND_BACK, wireframeMode ? GL_LINE : GL_FILL);
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glUseProgram(shaderProgramT);
+    glBindVertexArray(VAOt);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 
     // move to separate backend renderer
     ImGui_ImplOpenGL3_NewFrame();
@@ -126,16 +194,20 @@ void PlotApp::Render()
 
     ImGui::NewFrame();
     static float f = 0.0f;
-    static int counter = 0;
     ImGui::SetNextWindowPos(ImVec2());
-    ImGui::Begin("Hello, world!", NULL,
-                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
-    ImGui::Text("This is some useful text.");
+    ImGui::Begin("GL PLAYGROUND!", NULL,
+                  ImGuiWindowFlags_NoResize 
+                | ImGuiWindowFlags_NoMove 
+                | ImGuiWindowFlags_NoCollapse 
+                | ImGuiWindowFlags_NoSavedSettings);
+
+    ImGui::Text("Drawing the plot using OpenGL!");
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-    if (ImGui::Button("Button"))
-        counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
+    // if (ImGui::Button("Button"))
+    //     counter++;
+    // ImGui::SameLine();
+    // ImGui::Text("counter = %d", counter);
+    ImGui::Checkbox("Wireframe Mode", &wireframeMode);
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -1,7 +1,5 @@
-#define SDL_MAIN_HANDLED
 #include "engine.hpp"
 #include "SDL3/SDL_init.h"
-#include "SDL3/SDL_main.h"
 #include "iapp.hpp"
 #include "log.hpp"
 #include <utility>
@@ -25,7 +23,6 @@ Engine::Engine(std::unique_ptr<IApp>&& p_app,
 
 void Engine::Start()
 {
-    SDL_SetMainReady();
     app->Init();
     app->Start();
 }
