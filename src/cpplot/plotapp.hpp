@@ -8,4 +8,5 @@ class PlotApp : public qrlx::IApp
     void Upadte() override;
     void HandleEvent() override;
     void Render() override;
+    void Exit() override;
 };

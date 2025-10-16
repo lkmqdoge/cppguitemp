@@ -13,6 +13,7 @@ public:
     virtual void Upadte() = 0;
     virtual void HandleEvent() = 0;
     virtual void Render() = 0;
+    virtual void Exit() = 0;
     
     Engine* Engine;
 };

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.17)
 project(glplayground)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(SDL_MAIN_HANDLED ON)
 
 add_subdirectory(thirdparty)
 find_package(OpenGL REQUIRED)
@@ -37,7 +40,8 @@ target_link_libraries(${CPPLOT_NAME}
 # warnings on
 target_compile_options(${CPPLOT_NAME} PRIVATE
   $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+#   $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
 )
 
 target_include_directories(${CPPLOT_NAME}  
@@ -45,16 +49,20 @@ target_include_directories(${CPPLOT_NAME}
             ./src/cpplot/
 )
 
+
+add_custom_command(
+    TARGET  ${CPPLOT_NAME} PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${CPPLOT_NAME}>/resources)
+
+
 # adding dll in exe folder on windows
 if (WIN32)
     add_custom_command(
             TARGET ${CPPLOT_NAME} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3>" "$<TARGET_FILE_DIR:${CPPLOT_NAME}>"
-            VERBATIM
-    )
+            VERBATIM)
     add_custom_command(
             TARGET ${CPPLOT_NAME} POST_BUILD
             COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:glad>" "$<TARGET_FILE_DIR:${CPPLOT_NAME}>"
-            VERBATIM
-    )
+            VERBATIM)
 endif()

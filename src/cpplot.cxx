@@ -4,7 +4,7 @@
 
 using namespace qrlx;
 
-int main()
+int main(int argc, char** argv)
 {
     const std::string title = "cpplot";
     Engine e = Engine(std::make_unique<PlotApp>(), title, 800, 600);
