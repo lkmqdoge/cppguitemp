@@ -16,9 +16,11 @@ add_subdirectory(lib)
 
 
 # ------------------------- cpplot 
+file(GLOB cpplot_SRC "src/cpplot/*.cxx")
 add_executable(${CPPLOT_NAME}
     WIN32
     src/cpplot.cxx
+    ${cpplot_SRC}
 )
 
 target_compile_definitions(${CPPLOT_NAME}
@@ -30,6 +32,12 @@ target_link_libraries(${CPPLOT_NAME}
             glad
             imgui
             qrlx
+)
+
+# warnings on
+target_compile_options(${CPPLOT_NAME} PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 
 target_include_directories(${CPPLOT_NAME}  
