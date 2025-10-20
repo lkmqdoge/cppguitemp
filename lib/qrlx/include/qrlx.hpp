@@ -1,5 +1,5 @@
-#ifndef QRLX_QRLX
-#define QRLX_QRLX
+#ifndef QRLX_QRLX_HPP
+#define QRLX_QRLX_HPP
 
 #include "engine.hpp"
 #include "iapp.hpp"

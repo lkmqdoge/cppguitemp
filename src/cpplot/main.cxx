@@ -2,12 +2,10 @@
 #include "plotapp.hpp"
 #include <memory>
 
-using namespace qrlx;
-
-int main(int argc, char** argv)
+int main()
 {
     const std::string title = "cpplot";
-    Engine e = Engine(std::make_unique<PlotApp>(), title, 800, 600);
+    qrlx::Engine e = qrlx::Engine(std::make_unique<PlotApp>(), title, 800, 600);
 
     e.Start();
     e.Run();

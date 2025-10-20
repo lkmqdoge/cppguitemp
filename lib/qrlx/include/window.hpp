@@ -1,5 +1,5 @@
-#ifndef QRLX_WINDOW_HPP
-#define QRLX_WINDOW_HPP
+#ifndef QRLX_WINDOW_HPP_
+#define QRLX_WINDOW_HPP_
 
 #include "SDL3/SDL_video.h"
 #include "color.hpp"
@@ -18,33 +18,36 @@ struct SdlWindowDestroyer {
 
 class Window
 {
+
 public:
     Window(std::string p_title);
     ~Window();
-    
-    // Init 
+
+    // Init
     bool Init(int p_xPos, int p_yPos, int p_width, int p_height);
     void Clean();
-
     static std::unique_ptr<Window> Create(const std::string& p_title);
-    
-
     bool HandleEvents();
-
-    // Draw
     void Clear();
     void SwapBuffers();
 
-    // Properties
     Color& GetDefaultClearColor();
     void SetDefaultClearColor(Color p_color);
-    
+
+    int GetWidth();
+    int GetHeight();
+
 private:
-    Color defaultClearColor { Color(0.6f, 0.5f, 0.7f, 1.0f) };
-    std::unique_ptr<SDL_Window, SdlWindowDestroyer> window;
-    SDL_GLContext context {};
-    std::string title;
-    ImGuiIO* io;
+
+    int width_;
+    int height_;
+    std::string title_;
+    ImGuiIO* io_;
+    Color default_clear_color_ { Color(0.6f, 0.5f, 0.7f, 1.0f) };
+    std::unique_ptr<SDL_Window, SdlWindowDestroyer> window_;
+    SDL_GLContext context_ {};
+
+    void UpdateWindowSize();
 };
 }
 

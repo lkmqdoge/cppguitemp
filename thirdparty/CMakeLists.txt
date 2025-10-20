@@ -1,4 +1,4 @@
-
+add_subdirectory(glm)
 include(FetchContent)
 
 # define a function for adding git dependencies

@@ -1,4 +1,4 @@
-#include "plotapp.hpp"
+#include "app.hpp"
 #include "SDL3/SDL_timer.h"
 #include "glad/glad.h"
 #include "glm/ext/matrix_clip_space.hpp"
@@ -8,7 +8,6 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
-#include "log.hpp"
 #include "shader.hpp"
 
 static unsigned int VBO,
@@ -106,7 +105,6 @@ void PlotApp::Init()
 
 void PlotApp::Start()
 {
-    LOG("Hello from Plot app");
 }
 
 void PlotApp::Exit()

@@ -1,5 +1,5 @@
-#ifndef QRLX_ENGINE_HPP
-#define QRLX_ENGINE_HPP
+#ifndef QRLX_ENGINE_HPP_
+#define QRLX_ENGINE_HPP_
 
 #include <memory>
 #include <string>

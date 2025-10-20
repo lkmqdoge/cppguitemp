@@ -19,6 +19,9 @@ Engine::Engine(std::unique_ptr<IApp>&& p_app,
     {
         LOG("the main window is fucking died in agony");
     }
+
+    app->MainWindow = window.get();
+    app->Engine = this;
 }
 
 void Engine::Start()
@@ -29,9 +32,6 @@ void Engine::Start()
 
 void Engine::Run()
 {
-    /*
-        - Main loop  
-    */
     for (;isRunning;)
     {
         isRunning = window->HandleEvents();
