@@ -35,11 +35,11 @@ add_custom_command(
 # adding dll in exe folder on windows
 if (WIN32)
 
-add_custom_command(
+    add_custom_command(
         TARGET ${EXNAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3>" "$<TARGET_FILE_DIR:${EXNAME}>"
         VERBATIM)
-add_custom_command(
+    add_custom_command(
         TARGET ${EXNAME} POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:glad>" "$<TARGET_FILE_DIR:${EXNAME}>"
         VERBATIM)

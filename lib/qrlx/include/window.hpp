@@ -16,17 +16,20 @@ struct SdlWindowDestroyer {
     }
 };
 
+class Engine; // fd for engine.hpp
+
 class Window
 {
 
 public:
-    Window(std::string p_title);
+    Window(std::string p_title, Engine* en);
     ~Window();
+
+    static std::unique_ptr<Window> Create(const std::string& p_title, Engine* engine);
 
     // Init
     bool Init(int p_xPos, int p_yPos, int p_width, int p_height);
     void Clean();
-    static std::unique_ptr<Window> Create(const std::string& p_title);
     bool HandleEvents();
     void Clear();
     void SwapBuffers();
@@ -37,11 +40,14 @@ public:
     int GetWidth();
     int GetHeight();
 
+    float GetFramerate();
+
 private:
 
     int width_;
     int height_;
     std::string title_;
+    Engine* engine_;
     ImGuiIO* io_;
     Color default_clear_color_ { Color(0.6f, 0.5f, 0.7f, 1.0f) };
     std::unique_ptr<SDL_Window, SdlWindowDestroyer> window_;

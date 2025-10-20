@@ -16,19 +16,20 @@ class Engine
 
     void Start();
     void Run();
-    void Quit();
+    void Quit ();
 
     void RequestClose();
+    void ProccesEvent(SDL_Event* event);
 
   private:
 
-    bool isRunning { 1 };
-    uint32_t deltaTime;
+    bool isRunning_ { 1 };
+    uint32_t deltaTime_;
 
-    std::string title;
+    std::string title_;
 
-    std::unique_ptr<Window> window{nullptr};
-    std::unique_ptr<IApp> app;
+    std::unique_ptr<Window> window_ {nullptr};
+    std::unique_ptr<IApp> app_;
 };
 } // namespace qrlx
 

@@ -11,44 +11,49 @@ Engine::Engine(std::unique_ptr<IApp>&& p_app,
                int p_screenWidth,
                int p_screenHeight
             ) :
-    app(std::move(p_app)),
-    title(std::move(p_title))
+    app_(std::move(p_app)),
+    title_(std::move(p_title))
 {
-    window = Window::Create(title);
-    if (!window->Init(0, 0, p_screenWidth, p_screenHeight))
+    window_ = Window::Create(title_, this);
+    if (!window_->Init(0, 0, p_screenWidth, p_screenHeight))
     {
         LOG("the main window is fucking died in agony");
     }
 
-    app->MainWindow = window.get();
-    app->Engine = this;
+    app_->MainWindow = window_.get();
+    app_->Engine = this;
 }
 
 void Engine::Start()
 {
-    app->Init();
-    app->Start();
+    app_->Init();
+    app_->Start();
 }
 
 void Engine::Run()
 {
-    for (;isRunning;)
+    for (;isRunning_;)
     {
-        isRunning = window->HandleEvents();
-        window->Clear();
-        app->Render();
-        window->SwapBuffers();
+        isRunning_ = window_->HandleEvents();
+        window_->Clear();
+        app_->Render();
+        window_->SwapBuffers();
     }
 }
 
 void Engine::Quit()
 {
-    app->Exit();
-    window->Clean();
+    app_->Exit();
+    window_->Clean();
     SDL_Quit();
+}
+
+void Engine::ProccesEvent(SDL_Event* event)
+{
+    app_->HandleEvent(event);
 }
 
 void Engine::RequestClose()
 {
-    isRunning = 0;
+    isRunning_ = 0;
 }

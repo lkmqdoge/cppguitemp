@@ -1,4 +1,5 @@
 #include "SDL3/SDL_log.h"
+#include "engine.hpp"
 #include "glad/glad.h"
 
 #include "SDL3/SDL_error.h"
@@ -16,8 +17,8 @@
 
 using namespace qrlx;
 
-Window::Window(std::string p_title)
-    : title_(std::move(p_title))
+Window::Window(std::string p_title, Engine* engine)
+    : title_(std::move(p_title)), engine_(engine)
 {
 
 }
@@ -27,9 +28,9 @@ Window::~Window()
 
 }
 
-std::unique_ptr<Window> Window::Create(const std::string &p_title)
+std::unique_ptr<Window> Window::Create(const std::string &p_title, Engine* engine)
 {
-    return std::make_unique<Window>(p_title);
+    return std::make_unique<Window>(p_title, engine);
 }
 
 bool Window::Init(int p_xPos, int p_yPos, int p_width, int p_height)
@@ -63,6 +64,9 @@ bool Window::Init(int p_xPos, int p_yPos, int p_width, int p_height)
         return false;
     }
 
+    width_  = p_width;
+    height_ = p_height;
+
     context_ = SDL_GL_CreateContext(window_.get());
     if (!context_)
     {
@@ -81,16 +85,18 @@ bool Window::Init(int p_xPos, int p_yPos, int p_width, int p_height)
     SDL_ShowWindow(window_.get());
 
     glEnable(GL_DEPTH_TEST);
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     io_ = &ImGui::GetIO();
+
+    // Disable ini files
     io_->IniFilename = NULL;
     io_->LogFilename = NULL;
     io_->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io_->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
     ImGuiStyle& style = ImGui::GetStyle();
 
     // Setup Platform/Renderer backends
@@ -116,7 +122,9 @@ bool Window::HandleEvents()
     while(SDL_PollEvent(&event))
     {
         ImGui_ImplSDL3_ProcessEvent(&event);
+        engine_->ProccesEvent(&event);
 
+        // Procces events for window
         switch (event.type)
         {
         case SDL_EVENT_QUIT:
@@ -176,6 +184,11 @@ void Window::UpdateWindowSize()
     width_  = w;
     height_ = h;
     glViewport(0, 0, width_, height_);
+}
+
+float Window::GetFramerate()
+{
+    return io_->Framerate;
 }
 
 int Window::GetWidth()

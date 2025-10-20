@@ -1,5 +1,5 @@
 #include "shader.hpp"
-
+#include "log.hpp"
 #include "glad/glad.h"
 #include <fstream>
 #include <iostream>
@@ -18,18 +18,18 @@ void Shader::Load(const char *vertexPath, const char *fragmentPath)
     vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
 
-    try 
+    try
     {
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
-        std::stringstream vShaderStream, 
+        std::stringstream vShaderStream,
                           fShaderStream;
         vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();		
+        fShaderStream << fShaderFile.rdbuf();
         vShaderFile.close();
         fShaderFile.close();
         vertexCode   = vShaderStream.str();
-        fragmentCode = fShaderStream.str();		
+        fragmentCode = fShaderStream.str();
     }
     catch(std::ifstream::failure e)
     {
@@ -61,7 +61,7 @@ void Shader::Load(const char *vertexPath, const char *fragmentPath)
     glLinkProgram(ID);
 
     CheckLinkProgramErr(ID);
-    
+
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
@@ -72,18 +72,18 @@ void Shader::Use()
 }
 
 void Shader::SetBool(const std::string &p_name, bool p_value) const
-{         
-    glUniform1i(glGetUniformLocation(ID, p_name.c_str()), (int)p_value); 
+{
+    glUniform1i(glGetUniformLocation(ID, p_name.c_str()), (int)p_value);
 }
 
 void Shader::SetInt(const std::string &p_name, int p_value) const
-{ 
-    glUniform1i(glGetUniformLocation(ID, p_name.c_str()), p_value); 
+{
+    glUniform1i(glGetUniformLocation(ID, p_name.c_str()), p_value);
 }
 
 void Shader::SetFloat(const std::string &p_name, float p_value) const
-{ 
-    glUniform1f(glGetUniformLocation(ID, p_name.c_str()), p_value); 
+{
+    glUniform1f(glGetUniformLocation(ID, p_name.c_str()), p_value);
 }
 
 
@@ -92,32 +92,32 @@ void Shader::SetFloat(const std::string &p_name, float p_value) const
 */
 void Shader::SetVec2(const std::string &p_name, const glm::vec2 &p_value) const
 {
-    glUniform2fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]); 
+    glUniform2fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]);
 }
 
 void Shader::SetVec3(const std::string &p_name, const glm::vec3 &p_value) const
 {
-    glUniform3fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]); 
+    glUniform3fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]);
 }
 
 void Shader::SetVec4(const std::string &p_name, const glm::vec4 &p_value) const
 {
-    glUniform4fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]); 
+    glUniform4fv(glGetUniformLocation(ID, p_name.c_str()), 1, &p_value[0]);
 }
 
 void Shader::SetVec2(const std::string &p_name, float p_x, float p_y) const
 {
-    glUniform2f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y); 
+    glUniform2f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y);
 }
 
 void Shader::SetVec3(const std::string &p_name, float p_x, float p_y, float p_z) const
 {
-    glUniform3f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y, p_z); 
+    glUniform3f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y, p_z);
 }
 
 void Shader::SetVec4(const std::string &p_name, float p_x, float p_y, float p_z, float p_w) const
 {
-    glUniform4f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y, p_z, p_w); 
+    glUniform4f(glGetUniformLocation(ID, p_name.c_str()), p_x, p_y, p_z, p_w);
 }
 
 
@@ -152,8 +152,7 @@ void Shader::CheckLinkProgramErr(unsigned int p_program)
     if (!success)
     {
         glGetProgramInfoLog(p_program, 1024, NULL, infoLog);
-        std::cout << "ERROR::PROGRAM_LINKING_ERROR" << "\n"
-                    << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        SDL_Log("ERROR::PROGRAM_LINKING_ERROR %s, \n ------------------------------------------------------- \n", infoLog);
     }
 }
 
@@ -165,7 +164,6 @@ void Shader::CheckShaderCompileErr(unsigned int p_shader)
     if (!success)
     {
         glGetShaderInfoLog(p_shader, 1024, NULL, infoLog);
-        std::cout << "ERROR::SHADER_COMPILATION_ERROR of type" << "\n"
-                  << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+        SDL_Log("ERROR::SHADER_COMPILATION_ERROR %s, \n ------------------------------------------------------- \n", infoLog);
     }
 }
