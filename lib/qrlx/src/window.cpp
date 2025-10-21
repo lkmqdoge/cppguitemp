@@ -84,6 +84,8 @@ bool Window::Init(int p_xPos, int p_yPos, int p_width, int p_height)
     SDL_SetWindowPosition(window_.get(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window_.get());
 
+    SDL_GL_SetSwapInterval(0); // Enable vsync
+
     glEnable(GL_DEPTH_TEST);
 
     // Setup Dear ImGui context

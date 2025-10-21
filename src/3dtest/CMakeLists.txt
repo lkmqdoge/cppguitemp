@@ -1,6 +1,6 @@
 set(EXNAME 3dtest)
 
-file(GLOB EXSRC "*.cxx")
+file(GLOB EXSRC "*.cpp")
 
 add_executable(${EXNAME}
     WIN32

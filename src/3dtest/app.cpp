@@ -118,7 +118,7 @@ void PlotApp::Update()
 
 }
 
-void PlotApp::HandleEvent()
+void PlotApp::HandleEvent(SDL_Event* p_event)
 {
 }
 

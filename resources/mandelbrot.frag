@@ -7,9 +7,15 @@ uniform vec2  iResolution  = vec2(800.0, 600.0);
 uniform vec2  u_zoomCenter = vec2(1.0f);
 uniform float u_zoomSize   = 1.0f;
 
-const float escapeRadius = 4.0;
-const float escapeRadius2 = escapeRadius * escapeRadius;
-const int   maxIterations = 40;
+uniform vec3 a = vec3(0.5f, 0.5f,  0.5f );
+uniform vec3 b = vec3(0.5f, 0.5f,  0.5f );
+uniform vec3 c = vec3(2.0f, 1.0f,  0.0f );
+uniform vec3 d = vec3(0.5f, 0.20f, 0.25f);
+
+
+const float escapeRadius     = 4.0;
+const float escapeRadius2    = escapeRadius * escapeRadius;
+const int   maxIterations    = 40;
 const float invMaxIterations = 1.0 / float(maxIterations);
 
 
@@ -22,14 +28,11 @@ vec2 ipow2(vec2 v)
 // See: http://iquilezles.org/articles/palettes/
 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d)
 {
-    return a + b * cos(6.28318f * (c * t + d));
+    return a + b * cos(6.283185 * (c * t + d));
 }
 
-vec3 paletteColor(float t) {
-    vec3 a = vec3(0.5f);
-    vec3 b = vec3(0.5f);
-    vec3 c = vec3(1.0f);
-    vec3 d = vec3(0.6f, 0.1f, 0.2f);
+vec3 paletteColor(float t) 
+{
     return palette(fract(t + 0.5f), a, b, c, d);
 }
 
