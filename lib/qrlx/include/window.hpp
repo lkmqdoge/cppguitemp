@@ -22,7 +22,7 @@ class Window
 {
 
 public:
-    Window(std::string p_title, Engine* en);
+    Window(std::string p_title, Engine* p_en);
     ~Window();
 
     static std::unique_ptr<Window> Create(const std::string& p_title, Engine* engine);

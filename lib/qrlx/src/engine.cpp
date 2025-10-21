@@ -21,7 +21,7 @@ Engine::Engine(std::unique_ptr<IApp>&& p_app,
     }
 
     app_->MainWindow = window_.get();
-    app_->Engine = this;
+    app_->engine= this;
 }
 
 void Engine::Start()

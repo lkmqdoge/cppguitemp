@@ -5,10 +5,12 @@
 #include <string>
 
 #include "iapp.hpp"
-#include "window.hpp"
 
 namespace qrlx
 {
+
+class Window;
+
 class Engine
 {
   public:

@@ -20,7 +20,7 @@ public:
     virtual void HandleEvent(SDL_Event* event)  = 0;
 
     Window* MainWindow;
-    Engine* Engine;
+    Engine* engine;
 };
 }
 

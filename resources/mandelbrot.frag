@@ -22,15 +22,15 @@ vec2 ipow2(vec2 v)
 // See: http://iquilezles.org/articles/palettes/
 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d)
 {
-    return a + b * cos(6.28318 * (c * t + d));
+    return a + b * cos(6.28318f * (c * t + d));
 }
 
 vec3 paletteColor(float t) {
-    vec3 a = vec3(0.5);
-    vec3 b = vec3(0.5);
-    vec3 c = vec3(1.0);
-    vec3 d = vec3(0.0, 0.1, 0.2);
-    return palette(fract(t + 0.5), a, b, c, d);
+    vec3 a = vec3(0.5f);
+    vec3 b = vec3(0.5f);
+    vec3 c = vec3(1.0f);
+    vec3 d = vec3(0.6f, 0.1f, 0.2f);
+    return palette(fract(t + 0.5f), a, b, c, d);
 }
 
 
@@ -58,9 +58,9 @@ void main()
     float distance2 = dot(z, z);
     if (distance2 > escapeRadius2)
     {
-        float nu = log2(log(distance2) / 2.0);
+        float nu       = log2(log(distance2) / 2.0);
         float weighted = (float(iteration + 1) - nu) * invMaxIterations;
         float fraction = clamp(weighted, 0.0, 1.0);
-        fragColor = vec4(paletteColor(fraction), 1.0f);
+        fragColor      = vec4(paletteColor(fraction), 1.0f);
     }
 }
