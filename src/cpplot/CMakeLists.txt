@@ -1,6 +1,6 @@
 set(EXNAME cpplot)
 
-file(GLOB EXSRC "*.cxx")
+file(GLOB EXSRC "*.cpp")
 
 add_executable(${EXNAME}
     WIN32
